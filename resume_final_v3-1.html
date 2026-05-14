@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muhammad Mahmudov — Go Backend Developer</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── THEME VARS ──────────────────────────────── */
+[data-theme="dark"] {
+  --bg:       #090b0d;
+  --surface:  #0f1215;
+  --surface2: #141820;
+  --border:   #1e2430;
+  --border2:  #262f3e;
+  --text:     #dde5ed;
+  --muted:    #48586a;
+  --muted2:   #7a90a4;
+  --avocado:  #8db87a;
+  --avo-glow: rgba(141,184,122,0.12);
+  --avo-sh:   0 0 0 5px rgba(141,184,122,0.07), 0 6px 32px rgba(141,184,122,0.11);
+  --avo-sh2:  0 0 0 5px rgba(141,184,122,0.13), 0 8px 40px rgba(141,184,122,0.16);
+  --glass-bg: rgba(15,18,21,0.55);
+  --scan:     rgba(0,0,0,0.03);
+}
+[data-theme="light"] {
+  --bg:       #f0f2f0;
+  --surface:  #e8ede8;
+  --surface2: #dfe6df;
+  --border:   #c8d4c8;
+  --border2:  #b8c8b8;
+  --text:     #1a2a1a;
+  --muted:    #6a8a6a;
+  --muted2:   #4a6a4a;
+  --avocado:  #5a8a3a;
+  --avo-glow: rgba(90,138,58,0.10);
+  --avo-sh:   0 0 0 5px rgba(90,138,58,0.07), 0 6px 32px rgba(90,138,58,0.10);
+  --avo-sh2:  0 0 0 5px rgba(90,138,58,0.13), 0 8px 40px rgba(90,138,58,0.15);
+  --glass-bg: rgba(220,230,220,0.60);
+  --scan:     rgba(255,255,255,0);
+}
+
+/* ── RESET ───────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Exo 2',sans-serif;
+  font-size:14px;
+  font-weight:400;
+  line-height:1.7;
+  min-height:100vh;
+  transition:background .4s ease, color .4s ease;
+}
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,var(--scan) 2px,var(--scan) 4px);
+  pointer-events:none;z-index:0;
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--avocado)}
+
+/* ── THEME TOGGLE ────────────────────────────── */
+.theme-toggle{
+  position:fixed;top:24px;right:28px;z-index:1000;
+  width:56px;height:30px;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:999px;
+  cursor:pointer;
+  display:flex;align-items:center;
+  padding:3px;
+  transition:background .35s ease, border-color .35s ease, box-shadow .35s ease;
+  box-shadow:0 2px 12px rgba(0,0,0,0.25);
+}
+.theme-toggle:hover{box-shadow:var(--avo-sh)}
+.toggle-knob{
+  width:22px;height:22px;
+  border-radius:50%;
+  background:var(--avocado);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;
+  transition:transform .35s cubic-bezier(.34,1.3,.64,1), background .35s ease;
+  transform:translateX(0);
+  box-shadow:0 0 8px rgba(141,184,122,0.4);
+}
+[data-theme="light"] .toggle-knob{transform:translateX(26px)}
+
+/* ── PDF BUTTON ──────────────────────────────── */
+.pdf-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:18px;
+  font-family:'Orbitron',sans-serif;
+  font-size:10px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--bg);
+  background:var(--avocado);
+  border:none;border-radius:8px;
+  padding:10px 20px;
+  cursor:pointer;
+  transition:opacity .2s, transform .25s cubic-bezier(.34,1.4,.64,1), box-shadow .25s;
+  text-decoration:none;
+}
+.pdf-btn:hover{opacity:.88;transform:translateY(-2px);box-shadow:0 4px 20px rgba(141,184,122,.32)}
+.pdf-btn:active{transform:translateY(0)}
+
+/* ── PAGE ────────────────────────────────────── */
+.page{
+  max-width:920px;margin:0 auto;
+  padding:64px 40px 120px;
+  position:relative;z-index:1;
+  animation:fadeUp .8s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HEADER ──────────────────────────────────── */
+.header{
+  display:grid;grid-template-columns:1fr auto;gap:48px;
+  align-items:start;
+  padding-bottom:52px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:56px;
+}
+.eyebrow{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--avocado);margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.eyebrow::before{content:'';width:28px;height:1px;background:var(--avocado);box-shadow:0 0 8px var(--avocado)}
+h1{
+  font-family:'Orbitron',sans-serif;
+  font-size:44px;font-weight:900;line-height:1.05;
+  color:var(--text);margin-bottom:6px;
+  text-shadow:0 0 40px var(--avo-glow);
+}
+h1 span{color:var(--avocado);text-shadow:0 0 20px rgba(141,184,122,.3)}
+.location{
+  font-family:'Share Tech Mono',monospace;font-size:12px;
+  color:var(--muted2);display:flex;align-items:center;gap:8px;margin-top:10px;
+}
+.location::before{content:'◎';color:var(--avocado);font-size:10px}
+
+/* Salary box */
+.salary-box{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:12px;padding:24px 28px;text-align:center;
+  position:relative;overflow:hidden;white-space:nowrap;
+  transition:background .4s,border-color .4s;
+}
+.salary-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--avocado),transparent);
+  box-shadow:0 0 12px var(--avocado);
+}
+.salary-label{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.blink{
+  width:7px;height:7px;background:var(--avocado);border-radius:50%;
+  box-shadow:0 0 8px var(--avocado);animation:blink 2s ease-in-out infinite;display:inline-block;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.salary-from{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--muted);letter-spacing:.08em;margin-bottom:4px;
+}
+.salary-value{
+  font-family:'Orbitron',sans-serif;font-size:32px;font-weight:700;
+  color:var(--avocado);letter-spacing:.04em;
+  text-shadow:0 0 16px rgba(141,184,122,.35);
+}
+.salary-sub{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--muted);margin-top:6px;
+}
+
+/* ── SECTION ─────────────────────────────────── */
+.section{margin-bottom:52px}
+.section-label{
+  font-family:'Orbitron',sans-serif;font-size:10px;font-weight:600;
+  letter-spacing:.25em;text-transform:uppercase;color:var(--avocado);
+  margin-bottom:22px;display:flex;align-items:center;gap:14px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent)}
+
+/* ── ABOUT ───────────────────────────────────── */
+.about-text{
+  font-size:15px;font-weight:300;color:var(--muted2);
+  line-height:1.85;max-width:680px;
+  transition:color .4s;
+}
+.about-text strong{color:var(--text);font-weight:600}
+
+/* ── SHARED CARD ─────────────────────────────── */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:16px 20px;
+  position:relative;
+  transition:transform .32s cubic-bezier(.34,1.2,.64,1), box-shadow .32s ease, background .4s, border-color .4s;
+}
+.card:hover{transform:translateY(-2px) scale(1.008);box-shadow:var(--avo-sh)}
+.card.is-open{box-shadow:var(--avo-sh2)}
+
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.card-title{
+  font-family:'Orbitron',sans-serif;font-size:13px;font-weight:600;
+  color:var(--text);letter-spacing:.04em;line-height:1.3;
+}
+.card-sub{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--muted);margin-top:3px;letter-spacing:.02em;
+}
+.card-btn{
+  flex-shrink:0;
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.08em;
+  color:var(--muted);background:transparent;
+  border:1px solid var(--border2);border-radius:5px;
+  padding:4px 10px;text-decoration:none;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:5px;
+  transition:color .2s, border-color .2s, background .2s, box-shadow .2s;
+}
+.card-btn:hover,.card.is-open .card-btn{
+  color:var(--avocado);border-color:rgba(141,184,122,.4);
+  background:rgba(141,184,122,.05);box-shadow:0 0 10px rgba(141,184,122,.1);
+}
+
+/* Expand arrow button */
+.expand-arrow{
+  position:absolute;bottom:12px;right:14px;
+  width:28px;height:28px;
+  border:1px solid var(--border2);border-radius:6px;
+  background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:transform .3s ease, border-color .25s, background .25s, box-shadow .25s;
+  font-size:11px;color:var(--muted);
+}
+.expand-arrow:hover{
+  border-color:rgba(141,184,122,.4);color:var(--avocado);
+  box-shadow:0 0 10px rgba(141,184,122,.12);
+}
+.card.is-open .expand-arrow{transform:rotate(180deg);color:var(--avocado);border-color:rgba(141,184,122,.4)}
+
+/* Card details */
+.card-details{
+  max-height:0;overflow:hidden;opacity:0;margin-top:0;
+  transition:max-height .5s cubic-bezier(.4,0,.2,1), opacity .38s ease, margin-top .38s ease;
+}
+.card.is-open .card-details{max-height:600px;opacity:1;margin-top:16px}
+
+.card-desc{font-size:12px;color:var(--muted2);line-height:1.65;margin-bottom:12px}
+.card-bullets{list-style:none;margin-bottom:12px}
+.card-bullets li{
+  font-size:12px;color:var(--muted2);
+  padding:2px 0 2px 18px;position:relative;line-height:1.5;
+}
+.card-bullets li::before{
+  content:'→';position:absolute;left:0;
+  color:var(--avocado);font-size:11px;
+  font-family:'Share Tech Mono',monospace;
+}
+
+/* ── PROJECTS GRID ───────────────────────────── */
+.projects-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.proj-wide{grid-column:span 2}
+.card.has-arrow{padding-bottom:44px}
+
+/* ── TECH TAGS ───────────────────────────────── */
+.tech-tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:#4fa8d5;background:rgba(79,168,213,.07);
+  border:1px solid rgba(79,168,213,.18);
+  border-radius:4px;padding:2px 8px;
+}
+
+/* ── OSS BADGE ───────────────────────────────── */
+.oss-badge{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:#e8c97a;background:rgba(232,201,122,.08);
+  border:1px solid rgba(232,201,122,.25);
+  border-radius:20px;padding:2px 9px;white-space:nowrap;align-self:flex-start;margin-top:2px;
+}
+
+/* ── STATUS BADGE ────────────────────────────── */
+.status-badge{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--avocado);background:rgba(141,184,122,.08);
+  border:1px solid rgba(141,184,122,.25);
+  border-radius:20px;padding:2px 9px;white-space:nowrap;align-self:flex-start;margin-top:2px;
+}
+
+/* ══════════════════════════════════════════════
+   GLASS SKILL CAROUSELS
+══════════════════════════════════════════════ */
+.skills-stack{display:flex;flex-direction:column;gap:14px}
+
+.skill-group-glass{
+  background:var(--glass-bg);
+  backdrop-filter:blur(12px) saturate(180%);
+  -webkit-backdrop-filter:blur(12px) saturate(180%);
+  border:1px solid rgba(141,184,122,0.10);
+  border-radius:14px;
+  padding:18px 0 18px 20px;
+  overflow:hidden;
+  transition:box-shadow .3s ease, border-color .3s;
+}
+.skill-group-glass:hover{
+  border-color:rgba(141,184,122,.22);
+  box-shadow:var(--avo-sh);
+}
+.skill-group-title{
+  font-family:'Orbitron',sans-serif;font-size:9px;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:14px;padding-right:20px;
+}
+
+/* Carousel track */
+.carousel-outer{overflow:hidden;position:relative}
+.carousel-track{
+  display:flex;gap:10px;
+  width:max-content;
+  animation:scroll-left 28s linear infinite;
+}
+.carousel-track.fast{animation-duration:20s}
+.skill-group-glass:hover .carousel-track{animation-play-state:paused}
+
+@keyframes scroll-left{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
+
+/* Skill pill in carousel */
+.skill-pill{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--muted2);background:var(--surface2);
+  border:1px solid var(--border2);border-radius:6px;
+  padding:5px 12px;white-space:nowrap;
+  cursor:default;position:relative;flex-shrink:0;
+  display:flex;align-items:center;gap:6px;
+  transition:transform .28s cubic-bezier(.34,1.4,.64,1), box-shadow .28s, color .2s, border-color .2s;
+}
+.skill-pill:hover{
+  transform:scale(1.1) translateY(-2px);
+  box-shadow:var(--avo-sh);
+  color:var(--avocado);border-color:rgba(141,184,122,.35);
+}
+.skill-pill svg{width:14px;height:14px;flex-shrink:0;fill:currentColor}
+
+/* Tooltip */
+.skill-pill .tip{
+  position:absolute;bottom:calc(100% + 10px);left:50%;
+  transform:translateX(-50%) translateY(6px);
+  background:var(--surface2);border:1px solid var(--border2);
+  border-radius:8px;padding:9px 13px;width:210px;
+  font-family:'Exo 2',sans-serif;font-size:11px;line-height:1.55;
+  color:var(--muted2);white-space:normal;
+  pointer-events:none;opacity:0;
+  transition:opacity .22s ease, transform .22s ease;
+  z-index:200;box-shadow:0 4px 24px rgba(0,0,0,.4);
+}
+.skill-pill:hover .tip{opacity:1;transform:translateX(-50%) translateY(0)}
+.skill-pill .tip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--border2);
+}
+
+/* Fade edges on carousel */
+.carousel-outer::before,.carousel-outer::after{
+  content:'';position:absolute;top:0;bottom:0;width:40px;z-index:10;pointer-events:none;
+}
+.carousel-outer::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+.carousel-outer::after{right:0;background:linear-gradient(270deg,var(--bg),transparent)}
+
+/* ── EDU GRID ────────────────────────────────── */
+.edu-grid{display:grid;grid-template-columns:1fr;gap:12px}
+
+/* ── INFO PILLS ──────────────────────────────── */
+.info-row{display:flex;flex-wrap:wrap;gap:8px}
+.info-pill{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--muted2);background:var(--surface);
+  border:1px solid var(--border);border-radius:5px;padding:4px 12px;
+  transition:background .4s,border-color .4s,color .4s;
+}
+.info-pill strong{color:var(--text)}
+
+/* ── CONTACT ─────────────────────────────────── */
+.contact-section{margin-top:64px;padding-top:48px;border-top:1px solid var(--border)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.icon-row{display:flex;gap:12px;margin-bottom:24px}
+.icon-link{
+  width:44px;height:44px;border:1px solid var(--border2);
+  border-radius:10px;background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;color:var(--muted2);
+  transition:color .25s, border-color .25s, box-shadow .25s, transform .28s cubic-bezier(.34,1.4,.64,1), background .4s;
+}
+.icon-link:hover{
+  color:var(--avocado);border-color:rgba(141,184,122,.4);
+  box-shadow:var(--avo-sh);transform:translateY(-3px) scale(1.07);
+}
+.icon-link svg{width:20px;height:20px;fill:currentColor}
+.icon-label{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--muted);letter-spacing:.06em;margin-bottom:24px;
+}
+
+/* Form */
+.contact-form{display:flex;flex-direction:column;gap:10px}
+.contact-form input,.contact-form textarea{
+  font-family:'Share Tech Mono',monospace;font-size:12px;
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:8px;padding:10px 14px;color:var(--text);
+  outline:none;resize:none;
+  transition:border-color .2s, box-shadow .2s, background .4s, color .4s;
+}
+.contact-form input::placeholder,.contact-form textarea::placeholder{color:var(--muted);letter-spacing:.04em}
+.contact-form input:focus,.contact-form textarea:focus{
+  border-color:rgba(141,184,122,.35);box-shadow:0 0 0 3px rgba(141,184,122,.06);
+}
+.contact-form textarea{height:100px}
+.send-btn{
+  font-family:'Orbitron',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--bg);background:var(--avocado);
+  border:none;border-radius:8px;padding:11px 20px;
+  cursor:pointer;
+  transition:opacity .2s, transform .25s cubic-bezier(.34,1.4,.64,1), box-shadow .25s;
+}
+.send-btn:hover{opacity:.88;transform:translateY(-2px);box-shadow:0 4px 20px rgba(141,184,122,.3)}
+.send-btn:active{transform:translateY(0)}
+.form-ok{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--avocado);display:none;margin-top:4px}
+
+/* ── FOOTER ──────────────────────────────────── */
+.footer{
+  margin-top:48px;padding-top:20px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.footer-note{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em}
+
+/* ── PRINT STYLES ────────────────────────────── */
+@media print{
+  .theme-toggle,.pdf-btn,.expand-arrow,.carousel-outer,.contact-section,.footer{display:none!important}
+  .card-details{max-height:none!important;opacity:1!important;margin-top:12px!important}
+  body::after{display:none}
+  .page{padding:20px}
+  .projects-grid{grid-template-columns:1fr 1fr}
+  .skill-group-glass{backdrop-filter:none;background:var(--surface)}
+  .carousel-track{animation:none!important;width:auto!important;flex-wrap:wrap}
+}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media(max-width:640px){
+  h1{font-size:30px}
+  .header{grid-template-columns:1fr}
+  .projects-grid{grid-template-columns:1fr}
+  .proj-wide{grid-column:span 1}
+  .contact-grid{grid-template-columns:1fr}
+  .theme-toggle{top:16px;right:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle color theme">
+  <div class="toggle-knob" id="knob">🌙</div>
+</button>
+
+<div class="page">
+
+  <!-- ── HEADER ──────────────────────────────── -->
+  <header class="header">
+    <div>
+      <div class="eyebrow">Go Backend Developer</div>
+      <h1>Muhammad<br><span>Mahmudov</span></h1>
+      <div class="location">Dushanbe, Tajikistan · Open to relocation &amp; remote</div>
+      <button class="pdf-btn" onclick="window.print()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        Download CV
+      </button>
+    </div>
+    <div class="salary-box">
+      <div class="salary-label"><span class="blink"></span>Available now</div>
+      <div class="salary-from">Starting from</div>
+      <div class="salary-value">$800</div>
+      <div class="salary-sub">/ month · negotiable</div>
+    </div>
+  </header>
+
+  <!-- ── ABOUT ────────────────────────────────── -->
+  <section class="section">
+    <div class="section-label">About</div>
+    <p class="about-text">
+      Junior Go backend developer with a solid foundation in <strong>concurrent systems, REST APIs, and containerised infrastructure</strong>. Chose Go deliberately for its performance model and explicit concurrency primitives. Financial education background sharpens domain intuition when modelling business logic. Actively contributing to open-source and pursuing parallel education in Computer Science and Applied Data Science. Seeking a team where real-world code review accelerates growth.
+    </p>
+  </section>
+
+  <!-- ── PROJECTS ──────────────────────────────── -->
+  <section class="section">
+    <div class="section-label">Projects</div>
+    <div class="projects-grid">
+
+      <div class="card has-arrow" id="c1">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Nexus</div>
+            <div class="card-sub">Real-time WebSocket broadcast server</div>
+          </div>
+          <a class="card-btn" href="https://github.com/MahmudovMZ/Nexus" target="_blank">↗ GitHub</a>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Concurrent chat server supporting public rooms and private messaging, built on Go's native concurrency primitives without third-party libraries.</p>
+          <ul class="card-bullets">
+            <li>Goroutines &amp; channels — zero shared-memory locking</li>
+            <li>Public rooms and direct private messaging by address</li>
+            <li>Clean architecture: cmd / internal / pkg</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tag">Go</span><span class="tag">WebSocket</span><span class="tag">Goroutines</span><span class="tag">Channels</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('c1')">▼</div>
+      </div>
+
+      <div class="card has-arrow" id="c2">
+        <div class="card-header">
+          <div>
+            <div class="card-title">URL Inspector</div>
+            <div class="card-sub">SSRF-safe URL inspection service</div>
+          </div>
+          <a class="card-btn" href="https://github.com/MahmudovMZ/url-inspector" target="_blank">↗ GitHub</a>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Security-focused service processing user-supplied URLs, with Docker container isolation as a core architectural decision.</p>
+          <ul class="card-bullets">
+            <li>Protection against Server-Side Request Forgery</li>
+            <li>Docker-based container isolation for safe execution</li>
+            <li>Request validation and filtering pipeline</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tag">Go</span><span class="tag">Docker</span><span class="tag">Security</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('c2')">▼</div>
+      </div>
+
+      <div class="card has-arrow" id="c3">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Actium</div>
+            <div class="card-sub">Task management REST API</div>
+          </div>
+          <a class="card-btn" href="https://github.com/MahmudovMZ/Actium" target="_blank">↗ GitHub</a>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Task management web application with full CRUD operations built on Go's standard library without third-party HTTP frameworks.</p>
+          <ul class="card-bullets">
+            <li>Full CRUD via idiomatic REST endpoints</li>
+            <li>Layered architecture (cmd / internal) for maintainability</li>
+            <li>Pure net/http — no framework dependency</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tag">Go</span><span class="tag">REST API</span><span class="tag">net/http</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('c3')">▼</div>
+      </div>
+
+      <div class="card has-arrow" id="c4">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Port Scanner</div>
+            <div class="card-sub">Multithreaded TCP port scanner</div>
+          </div>
+          <a class="card-btn" href="https://github.com/MahmudovMZ/go-scanner" target="_blank">↗ GitHub</a>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">High-performance port scanner leveraging Go's concurrency model for parallel TCP connection attempts with configurable parameters.</p>
+          <ul class="card-bullets">
+            <li>Parallel scanning using goroutines + WaitGroup</li>
+            <li>Low-level TCP connection handling</li>
+            <li>Configurable port ranges and timeouts</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tag">Go</span><span class="tag">Concurrency</span><span class="tag">TCP/IP</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('c4')">▼</div>
+      </div>
+
+      <div class="card has-arrow proj-wide" id="c5">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Sphynx</div>
+            <div class="card-sub">Word-guessing game · Telegram bot + CLI</div>
+          </div>
+          <a class="card-btn" href="https://github.com/MahmudovMZ/Sphynx" target="_blank">↗ GitHub</a>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Interactive word-guessing game with two independent interfaces sharing the same core game logic.</p>
+          <ul class="card-bullets">
+            <li>Telegram Bot API integration with stateful session management</li>
+            <li>Dual interface: interactive CLI and Telegram bot</li>
+            <li>Separation of concerns: cmd / internal / pkg</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tag">Go</span><span class="tag">Telegram Bot API</span><span class="tag">net/http</span><span class="tag">CLI</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('c5')">▼</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── OPEN SOURCE ───────────────────────────── -->
+  <section class="section">
+    <div class="section-label">Open Source</div>
+    <div class="card has-arrow" id="oss1">
+      <div class="card-header">
+        <div>
+          <div class="card-title">sivchari / kumo</div>
+          <div class="card-sub">AWS SQS-compatible Go library</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start">
+          <span class="oss-badge">Contributor</span>
+          <a class="card-btn" href="https://github.com/sivchari/kumo" target="_blank">↗ GitHub</a>
+        </div>
+      </div>
+      <div class="card-details">
+        <p class="card-desc">Go library providing AWS SQS-compatible operations. Contributed multiple missing core and supporting operations, expanding API coverage from 11 to 15 implemented operations.</p>
+        <ul class="card-bullets">
+          <li>Implemented <code style="font-family:'Share Tech Mono',monospace;color:var(--avocado)">ChangeMessageVisibility</code> — core operation for extending or shortening message visibility timeouts</li>
+          <li>Added <code style="font-family:'Share Tech Mono',monospace;color:var(--avocado)">ChangeMessageVisibilityBatch</code> for efficient bulk visibility control</li>
+          <li>Contributed <code style="font-family:'Share Tech Mono',monospace;color:var(--avocado)">AddPermission</code> and <code style="font-family:'Share Tech Mono',monospace;color:var(--avocado)">RemovePermission</code> for queue access management</li>
+        </ul>
+        <div class="tech-tags">
+          <span class="tag">Go</span><span class="tag">AWS SQS</span><span class="tag">Open Source</span>
+        </div>
+      </div>
+      <div class="expand-arrow" onclick="toggleCard('oss1')">▼</div>
+    </div>
+  </section>
+
+  <!-- ── SKILLS (GLASS CAROUSELS) ──────────────── -->
+  <section class="section">
+    <div class="section-label">Skills</div>
+    <div class="skills-stack">
+
+      <!-- Core Stack -->
+      <div class="skill-group-glass">
+        <div class="skill-group-title">Core Stack</div>
+        <div class="carousel-outer">
+          <div class="carousel-track" id="track-core"></div>
+        </div>
+      </div>
+
+      <!-- Infrastructure -->
+      <div class="skill-group-glass">
+        <div class="skill-group-title">Infrastructure</div>
+        <div class="carousel-outer">
+          <div class="carousel-track fast" id="track-infra"></div>
+        </div>
+      </div>
+
+      <!-- Architecture -->
+      <div class="skill-group-glass">
+        <div class="skill-group-title">Architecture &amp; Tools</div>
+        <div class="carousel-outer">
+          <div class="carousel-track" id="track-arch"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── EDUCATION ─────────────────────────────── -->
+  <section class="section">
+    <div class="section-label">Education</div>
+    <div class="edu-grid">
+
+      <div class="card has-arrow" id="edu1">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Finance &amp; Credit</div>
+            <div class="card-sub">Int'l University of Tourism &amp; Entrepreneurship of Tajikistan</div>
+          </div>
+          <a class="card-btn" href="https://iutet.tj" target="_blank">↗ Visit</a>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Bachelor's Degree · 2021 – 2026 · Completed. Specialisation: Finance &amp; Credit (Economist). Builds strong intuition for business logic modelling in financial applications.</p>
+          <div class="tech-tags">
+            <span class="tag">Financial Analysis</span><span class="tag">Accounting</span>
+            <span class="tag">Banking Systems</span><span class="tag">Economic Modelling</span>
+            <span class="tag">Business Logic Design</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('edu1')">▼</div>
+      </div>
+
+      <div class="card has-arrow" id="edu2">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Golang Backend Developer</div>
+            <div class="card-sub">Technohub Dushanbe</div>
+          </div>
+          <a class="card-btn" href="https://technohub.tj" target="_blank">↗ Visit</a>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Professional Course · 2026 · Completed. Backend development program covering Go fundamentals through production-ready patterns and containerisation.</p>
+          <div class="tech-tags">
+            <span class="tag">Go</span><span class="tag">REST API</span><span class="tag">PostgreSQL</span>
+            <span class="tag">Docker</span><span class="tag">Microservices</span><span class="tag">Linux</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('edu2')">▼</div>
+      </div>
+
+      <div class="card has-arrow" id="edu3">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Backend Development</div>
+            <div class="card-sub">Humo Bank Academy</div>
+          </div>
+          <a class="card-btn" href="https://humo.tj" target="_blank">↗ Visit</a>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Professional Course · 2026 · Completed. Software engineering program with focus on backend architecture, system design, and financial-domain APIs.</p>
+          <div class="tech-tags">
+            <span class="tag">Go</span><span class="tag">gRPC</span><span class="tag">Redis</span>
+            <span class="tag">CI/CD</span><span class="tag">System Design</span><span class="tag">Unit Testing</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('edu3')">▼</div>
+      </div>
+
+      <div class="card has-arrow" id="edu4">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Applied Data Science Lab</div>
+            <div class="card-sub">WorldQuant University · Free · Accredited (DEAC)</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span class="status-badge">In progress</span>
+            <a class="card-btn" href="https://www.wqu.edu/adsl" target="_blank">↗ Visit</a>
+          </div>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Professional Credential · 16 weeks · 8 hands-on projects. 100% free, self-paced, online. Covers real-world data science workflows from data acquisition to model deployment. Expands backend skill set with data-driven decision making capabilities.</p>
+          <ul class="card-bullets">
+            <li>8 end-to-end projects on real-world datasets (housing, air quality, finance)</li>
+            <li>Querying SQL, MongoDB, and REST APIs for data acquisition</li>
+            <li>Building predictive models for regression and classification</li>
+            <li>Interactive data visualisation and stakeholder reporting</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tag">Python</span><span class="tag">Data Analysis</span><span class="tag">Machine Learning</span>
+            <span class="tag">SQL</span><span class="tag">MongoDB</span><span class="tag">Data Visualisation</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('edu4')">▼</div>
+      </div>
+
+      <div class="card has-arrow" id="edu5">
+        <div class="card-header">
+          <div>
+            <div class="card-title">BS Computer Science</div>
+            <div class="card-sub">University of the People · Remote · Accredited (WSCUC)</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <span class="status-badge">Current Student</span>
+            <a class="card-btn" href="https://www.uopeople.edu/programs/cs/" target="_blank">↗ Visit</a>
+          </div>
+        </div>
+        <div class="card-details">
+          <p class="card-desc">Bachelor of Science · Remote · Jun 18, 2026 – Jun 2030 (est.). 40 courses / 120 credits. Tuition-free American university accredited by WSCUC. 100% online, flexible schedule. Provides a rigorous CS foundation alongside professional backend practice.</p>
+          <ul class="card-bullets">
+            <li>Programming Fundamentals, Data Structures, Algorithms</li>
+            <li>Operating Systems, Databases I &amp; II, Data Mining</li>
+            <li>AI &amp; Machine Learning foundations, Computer Networks</li>
+            <li>Software Engineering, Project Management, Ethics in Computing</li>
+          </ul>
+          <div class="tech-tags">
+            <span class="tag">Python</span><span class="tag">Java</span><span class="tag">Algorithms</span>
+            <span class="tag">Data Structures</span><span class="tag">OS</span><span class="tag">Databases</span>
+            <span class="tag">AI / ML</span><span class="tag">Software Engineering</span>
+          </div>
+        </div>
+        <div class="expand-arrow" onclick="toggleCard('edu5')">▼</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── ADDITIONAL ─────────────────────────────── -->
+  <section class="section">
+    <div class="section-label">Additional</div>
+    <div class="info-row">
+      <div class="info-pill"><strong>Russian</strong> — Native</div>
+      <div class="info-pill"><strong>Tajik</strong> — Native</div>
+      <div class="info-pill"><strong>English</strong> — Technical</div>
+      <div class="info-pill"><strong>Citizenship:</strong> Tajikistan</div>
+      <div class="info-pill"><strong>Work permit:</strong> Russia, CIS</div>
+      <div class="info-pill"><strong>Format:</strong> Office / Remote / Hybrid</div>
+      <div class="info-pill"><strong>Relocation:</strong> Open</div>
+      <div class="info-pill"><strong>Driving:</strong> B, C, E, CE</div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ───────────────────────────────── -->
+  <div class="contact-section">
+    <div class="section-label">Contact</div>
+    <div class="contact-grid">
+      <div>
+        <div class="icon-row">
+          <!-- GitHub -->
+          <a class="icon-link" href="https://github.com/MahmudovMZ" target="_blank" title="GitHub">
+            <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+          </a>
+          <!-- LinkedIn -->
+          <a class="icon-link" href="https://www.linkedin.com/in/muhammadjon-mahmudov-238592381" target="_blank" title="LinkedIn">
+            <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <!-- Telegram -->
+          <a class="icon-link" href="https://t.me/ibnmahmud08" target="_blank" title="Telegram">
+            <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+          </a>
+          <!-- WhatsApp -->
+          <a class="icon-link" href="https://wa.me/992901110621" target="_blank" title="WhatsApp">
+            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          </a>
+        </div>
+        <div class="icon-label">Open to opportunities worldwide · Response within 24h</div>
+      </div>
+
+      <form class="contact-form" onsubmit="handleSubmit(event)">
+        <input type="email" name="email" placeholder="your@email.com" required>
+        <textarea name="message" placeholder="Your message..." required></textarea>
+        <button type="submit" class="send-btn">Send Message</button>
+        <div class="form-ok" id="form-ok">✓ Message sent successfully</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-note">github.com/MahmudovMZ · Updated June 2026</div>
+    <div class="footer-note">Muhammad Mahmudov © 2026</div>
+  </footer>
+
+</div>
+
+<script>
+/* ── THEME ───────────────────────────────────── */
+function toggleTheme(){
+  const html = document.documentElement;
+  const knob = document.getElementById('knob');
+  if(html.dataset.theme === 'dark'){
+    html.dataset.theme = 'light';
+    knob.textContent = '☀️';
+  } else {
+    html.dataset.theme = 'dark';
+    knob.textContent = '🌙';
+  }
+}
+
+/* ── CARD TOGGLE ─────────────────────────────── */
+function toggleCard(id){
+  const card = document.getElementById(id);
+  card.classList.toggle('is-open');
+  // Close if scrolled out of view
+  if(card.classList.contains('is-open')){
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(!e.isIntersecting) card.classList.remove('is-open');
+      });
+    },{threshold:0.1});
+    observer.observe(card);
+    card._obs = observer;
+  } else {
+    if(card._obs){card._obs.disconnect();delete card._obs;}
+  }
+}
+
+/* ── FORM ────────────────────────────────────── */
+async function handleSubmit(e){
+  e.preventDefault();
+  const form = e.target;
+  const ok = document.getElementById('form-ok');
+  try{
+    const res = await fetch('https://formspree.io/f/mlgzvnav',{
+      method:'POST',
+      body:new FormData(form),
+      headers:{'Accept':'application/json'}
+    });
+    if(res.ok){
+      ok.style.display='block';
+      form.reset();
+      setTimeout(()=>ok.style.display='none',4000);
+    }
+  }catch(err){console.error(err)}
+}
+
+/* ── SKILL CAROUSELS ─────────────────────────── */
+const skills = {
+  core: [
+    {name:'Go / Golang', tip:'Statically typed, compiled language. Primary language across all personal and open-source projects.', svg:'<svg viewBox="0 0 24 24"><path d="M1.811 10.231c-.047 0-.058-.023-.035-.059l.246-.315c.023-.035.081-.058.128-.058h4.172c.046 0 .058.035.035.07l-.199.303c-.023.036-.082.07-.117.07zM.047 11.306c-.047 0-.059-.023-.035-.058l.245-.316c.023-.035.082-.058.129-.058h5.328c.047 0 .07.035.058.07l-.093.28c-.012.047-.058.07-.105.07zm2.828 1.075c-.047 0-.059-.035-.035-.07l.163-.292c.023-.035.07-.07.117-.07h2.337c.047 0 .07.035.07.082l-.023.28c0 .047-.047.082-.082.082zm12.129-2.36c-.736.187-1.239.327-1.963.514-.176.046-.187.058-.34-.117-.174-.199-.303-.327-.548-.444-.737-.362-1.45-.257-2.115.175-.795.514-1.204 1.274-1.192 2.22.011.935.654 1.706 1.577 1.835.795.105 1.46-.175 1.987-.77.105-.13.198-.27.315-.434H10.47c-.245 0-.304-.152-.222-.35.152-.362.432-.97.596-1.274a.315.315 0 0 1 .292-.187h4.253c-.023.316-.023.631-.07.947a4.983 4.983 0 0 1-.958 2.29c-.841 1.11-1.94 1.8-3.33 1.986-1.145.152-2.209-.07-3.143-.77-.865-.655-1.356-1.52-1.484-2.595-.152-1.274.222-2.419.993-3.424.83-1.086 1.928-1.776 3.272-2.02 1.098-.2 2.15-.07 3.096.571.62.41 1.063.97 1.356 1.648.07.105.023.164-.117.2zm3.868 6.461c-1.064-.024-2.034-.328-2.852-1.029a3.665 3.665 0 0 1-1.262-2.255c-.21-1.32.152-2.489.947-3.529.853-1.122 1.881-1.706 3.272-1.95 1.192-.21 2.314-.095 3.33.595.923.63 1.496 1.484 1.648 2.605.198 1.578-.257 2.863-1.344 3.962-.771.783-1.718 1.273-2.805 1.495-.315.06-.63.07-.934.106zm2.78-4.72c-.011-.153-.011-.27-.034-.387-.21-1.157-1.274-1.81-2.384-1.554-1.087.245-1.788 1.027-1.986 2.22-.164.99.386 2.01 1.403 2.362.771.255 1.542.164 2.209-.315.pty.516-.832 1.02-1.17.674l-.022.116z"/></svg>'},
+    {name:'PostgreSQL', tip:'Advanced relational database. Used for schema design, SQL queries, and data modelling in backend services.', svg:'<svg viewBox="0 0 24 24"><path d="M17.128 0a10.134 10.134 0 0 0-2.755.403l-.063.02A10.922 10.922 0 0 0 12.6.258C11.422.238 10.41.524 9.594 1 8.79.721 7.122.24 5.364.336 4.14.403 2.804.775 1.814 1.82.827 2.865.305 4.482.415 6.682c.039.763.34 1.986.987 3.184.352.659.845 1.335 1.514 1.882a11.457 11.457 0 0 0 2.302 6.947c.567.703 1.205 1.189 1.774 1.407.22.082.44.132.65.144.175.009.348-.013.515-.045a3.26 3.26 0 0 0 .877-.308c.222-.117.46-.268.688-.472a4.048 4.048 0 0 0 .584.567 2.89 2.89 0 0 0 1.625.643c.15.007.302.007.452.001a3.8 3.8 0 0 0 1.244-.288c.584-.25 1.143-.654 1.592-1.26.435-.586.76-1.36.922-2.358a12.26 12.26 0 0 0 .123-1.508l.001-.025c.013-.637.024-1.254-.015-1.99l.002-.016c.05-.515.087-1.051.083-1.61a10.551 10.551 0 0 0-.116-1.542c-.06-.357-.15-.7-.265-1.025a3.8 3.8 0 0 0 .57-2.245z"/></svg>'},
+    {name:'Redis', tip:'In-memory data store used for caching, session management, and pub/sub messaging patterns.', svg:''},
+    {name:'REST API', tip:'Designed and implemented RESTful endpoints following idiomatic Go patterns with proper HTTP status codes and JSON serialisation.', svg:''},
+    {name:'gRPC', tip:'High-performance RPC framework using Protocol Buffers. Applied in SSO-protos project with shared proto contracts.', svg:''},
+    {name:'WebSocket', tip:'Full-duplex communication protocol. Built a concurrent WebSocket server handling multiple connections in the Nexus project.', svg:''},
+  ],
+  infra: [
+    {name:'Docker', tip:'Containerisation platform. Used for building images, isolating services, and creating reproducible environments.', svg:'<svg viewBox="0 0 24 24"><path d="M13.983 11.078h2.119a.186.186 0 0 0 .186-.185V9.006a.186.186 0 0 0-.186-.186h-2.119a.185.185 0 0 0-.185.185v1.888c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 0 0 .186-.186V3.574a.186.186 0 0 0-.186-.185h-2.118a.185.185 0 0 0-.185.185v1.888c0 .102.082.185.185.185m0 2.716h2.118a.187.187 0 0 0 .186-.186V6.29a.186.186 0 0 0-.186-.185h-2.118a.185.185 0 0 0-.185.185v1.887c0 .102.082.185.185.186m-2.93 0h2.12a.186.186 0 0 0 .184-.186V6.29a.185.185 0 0 0-.185-.185H8.1a.185.185 0 0 0-.185.185v1.887c0 .102.083.185.185.186m-2.964 0h2.119a.186.186 0 0 0 .185-.186V6.29a.185.185 0 0 0-.185-.185H5.136a.186.186 0 0 0-.186.185v1.887c0 .102.084.185.186.186m5.893 2.715h2.118a.186.186 0 0 0 .186-.185V9.006a.186.186 0 0 0-.186-.186h-2.118a.185.185 0 0 0-.185.185v1.888c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 0 0 .184-.185V9.006a.185.185 0 0 0-.184-.186h-2.12a.185.185 0 0 0-.185.185v1.888c0 .102.083.185.185.185m-2.964 0h2.119a.185.185 0 0 0 .185-.185V9.006a.185.185 0 0 0-.184-.186h-2.12a.186.186 0 0 0-.186.185v1.888c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 0 0 .184-.185V9.006a.185.185 0 0 0-.184-.186h-2.12a.185.185 0 0 0-.185.185v1.888c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 0 0-.75.748 11.376 11.376 0 0 0 .692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 0 0 3.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288Z"/></svg>'},
+    {name:'Docker Compose', tip:'Multi-container orchestration. Used to define and run multi-service local development environments with single commands.', svg:''},
+    {name:'Linux', tip:'Primary development OS. Comfortable with terminal, file system, process management, and shell scripting.', svg:''},
+    {name:'Git', tip:'Version control system. Daily driver — branching, merging, pull requests, and collaborative workflows on GitHub.', svg:'<svg viewBox="0 0 24 24"><path d="M23.546 10.93L13.067.452c-.604-.603-1.582-.603-2.188 0L8.708 2.627l2.76 2.76c.645-.215 1.379-.07 1.889.441.516.515.658 1.258.438 1.9l2.658 2.66c.645-.223 1.387-.078 1.9.435.721.72.721 1.884 0 2.604-.719.719-1.881.719-2.6 0-.539-.541-.674-1.337-.404-1.996L12.86 8.955v6.525c.176.086.342.203.488.348.713.721.713 1.883 0 2.6-.719.721-1.889.721-2.609 0-.719-.719-.719-1.879 0-2.598.182-.18.387-.316.605-.406V8.835c-.217-.091-.424-.222-.606-.403-.545-.545-.676-1.342-.396-2.009L7.636 3.69 .45 10.881c-.6.605-.6 1.584 0 2.189l10.48 10.477c.604.604 1.582.604 2.186 0l10.43-10.43c.605-.603.605-1.582 0-2.187"/></svg>'},
+    {name:'CI/CD', tip:'Continuous integration and delivery. Familiar with automated testing and deployment pipeline workflows.', svg:''},
+  ],
+  arch: [
+    {name:'Microservices', tip:'Architectural pattern where applications are built as independent, loosely coupled services. Applied in multi-service Go projects.', svg:''},
+    {name:'SQL Optimisation', tip:'Writing efficient queries, understanding execution plans, and designing indexes for performant database access.', svg:''},
+    {name:'pgAdmin4', tip:'GUI tool for PostgreSQL administration and query execution during development and debugging.', svg:''},
+    {name:'DBeaver', tip:'Universal database tool for querying and managing relational databases across multiple projects.', svg:''},
+    {name:'HTML/CSS/JS', tip:'Frontend basics acquired before pivoting to backend. Useful for full-stack context and building simple UIs.', svg:''},
+    {name:'AWS SQS', tip:'Message queuing service. Gained practical knowledge by contributing to the kumo open-source library.', svg:''},
+  ]
+};
+
+function buildPill(skill){
+  const p = document.createElement('div');
+  p.className = 'skill-pill';
+  p.innerHTML = (skill.svg ? skill.svg : '') + skill.name +
+    `<span class="tip">${skill.tip}</span>`;
+  return p;
+}
+
+function buildTrack(trackEl, items){
+  // Build two copies for seamless infinite loop
+  [...items, ...items].forEach(s => trackEl.appendChild(buildPill(s)));
+}
+
+buildTrack(document.getElementById('track-core'),  skills.core);
+buildTrack(document.getElementById('track-infra'), skills.infra);
+buildTrack(document.getElementById('track-arch'),  skills.arch);
+</script>
+</body>
+</html>
