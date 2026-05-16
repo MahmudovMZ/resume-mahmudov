@@ -30,7 +30,7 @@ If you want to clone this repository and run it locally:
 1. Clone the repository:
 
 ```bash
-git clone [https://github.com/mahmudovmz/resume-mahmudov.git](https://github.com/mahmudovmz/resume-mahmudov.git)
+git clone https://github.com/mahmudovmz/resume-mahmudov.git
 ```
 
 2. Navigate to the project directory:
