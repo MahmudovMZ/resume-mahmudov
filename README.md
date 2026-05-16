@@ -28,12 +28,16 @@ A clean, responsive, and performance-optimized resume website designed to showca
 If you want to clone this repository and run it locally:
 
 1. Clone the repository:
-   `bash
-   git clone [https://github.com/mahmudovmz/resume-mahmudov.git](https://github.com/mahmudovmz/resume-mahmudov.git)
+
+```bash
+git clone [https://github.com/mahmudovmz/resume-mahmudov.git](https://github.com/mahmudovmz/resume-mahmudov.git)
+```
 
 2. Navigate to the project directory:
-   `bash
-   cd resume-mahmudov
+
+```bash
+cd resume-mahmudov
+```
 
 3. Open the project:
 
